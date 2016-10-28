@@ -87,7 +87,7 @@ public class ServiceModelTranslator {
      * this method always works (unlike JAXB) but it doesn't support complex collection types like the one below
      * example of unsupported type: Map<String, Map<Integer, SomeBespokeType>>
      */
-    
+        
     private static <T> List<T> createListOfType(Class<T> type) {
         return new ArrayList<T>();
     }
@@ -111,7 +111,7 @@ public class ServiceModelTranslator {
      * @param source        - source object itself
      * @return              - translated destination object
      */
-    protected static <T> T transposeModel(Class sourceClass, Class<T> destClass, Object source) {        
+    public static <T> T transposeModel(Class sourceClass, Class<T> destClass, Object source) {        
         Object destInstance = null;
         try {
             destInstance = ConstructorUtils.invokeConstructor(destClass, null);        
@@ -149,18 +149,8 @@ public class ServiceModelTranslator {
                     }                    
                 }
             }        
-        } catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException | IntrospectionException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | InstantiationException ex) {
             Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);            
-        } catch (IntrospectionException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchMethodException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
         }
         return destClass.cast(destInstance);
     }
@@ -202,9 +192,7 @@ public class ServiceModelTranslator {
         } catch (IllegalArgumentException ex) {                
             System.out.println("Looks like type mismatch, source type: "+sourceType+", dest type: "+destType);
             Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvocationTargetException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
+        } catch (InvocationTargetException | IllegalAccessException ex) {
             Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -249,15 +237,16 @@ public class ServiceModelTranslator {
             Collection sourceItems = (Collection) sourceValue;
             Iterator it = sourceItems.iterator();
             Collection destItems; // = null;
-            if (destType.getName().equals("java.util.List")) {
-                destItems = createListOfType(destArgClass);
-            }
-            else if (destType.getName().equals("java.util.Set")) {
-                destItems = createSetOfType(destArgClass);
-            }
-            else {
-                System.out.println("4: Unrecognized collection, can't populate values");
-                return;
+            switch (destType.getName()) {
+                case "java.util.List":
+                    destItems = createListOfType(destArgClass);
+                    break;
+                case "java.util.Set":
+                    destItems = createSetOfType(destArgClass);
+                    break;
+                default:
+                    System.out.println("4: Unrecognized collection, can't populate values");
+                    return;
             }
 
             while (it.hasNext()) {                        
@@ -267,11 +256,7 @@ public class ServiceModelTranslator {
             try {
                 setter.invoke(destInstance, destItems);
 
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvocationTargetException ex) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
             }
         }                 
@@ -347,11 +332,7 @@ public class ServiceModelTranslator {
         try {
             setter.invoke(destInstance, destItems);
 
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvocationTargetException ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
         }        
         System.out.println("*** done");
@@ -390,11 +371,7 @@ public class ServiceModelTranslator {
             try {
                 setter.invoke(destInstance, destItems);
 
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvocationTargetException ex) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("*** done");            
@@ -418,15 +395,16 @@ public class ServiceModelTranslator {
                 return;
             }
             Collection destItems;
-            if (destType.getName().equals("java.util.List")) {
-                destItems = createListOfType(destArgClass);
-            }
-            else if (destType.getName().equals("java.util.Set")) {
-                destItems = createSetOfType(destArgClass);
-            }
-            else {
-                System.out.println("4: Unrecognized collection, can't populate values");
-                return;
+            switch (destType.getName()) {
+                case "java.util.List":
+                    destItems = createListOfType(destArgClass);
+                    break;
+                case "java.util.Set":
+                    destItems = createSetOfType(destArgClass);
+                    break;
+                default:
+                    System.out.println("4: Unrecognized collection, can't populate values");
+                    return;
             }
             for (Object value : sourceItems.values()) {
                 Object destValue = transposeModel(secondSourceArgClass, destArgClass, value);
@@ -435,11 +413,7 @@ public class ServiceModelTranslator {
             try {
                 setter.invoke(destInstance, destItems);
 
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalArgumentException ex) {
-                Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvocationTargetException ex) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ServiceModelTranslator.class.getName()).log(Level.SEVERE, null, ex);
             }        
             System.out.println("*** done");            
@@ -447,6 +421,5 @@ public class ServiceModelTranslator {
         else {
             System.out.println("4: Unrecognized collection type, cannot proceed, type: " + sourceType.getName());
         }
-    }
-    
+    }    
 }
