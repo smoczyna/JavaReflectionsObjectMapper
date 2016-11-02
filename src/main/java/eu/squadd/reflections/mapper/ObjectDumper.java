@@ -38,6 +38,8 @@ public class ObjectDumper {
         return dump(o, 0, 0, null);
     }
     
+    //public static String dump(Object o, )
+    
     public static String dump(Object o, int maxDepth, int maxArrayElements, String[] ignoreList) {
         DumpContext ctx = ObjectDumper.getInstance().new DumpContext();
         ctx.maxDepth = maxDepth;
@@ -186,6 +188,12 @@ public class ObjectDumper {
         }
     }
 
+    private static boolean compareValues(Object value1, DumpContext ctx1, Object value2, DumpContext ctx2) {
+        String val1 = dumpValue(value1, ctx1);
+        String val2 = dumpValue(value2, ctx2);
+        return val1.equals(val2);
+    }
+    
     private static String getSimpleNameWithoutArrayQualifier(Class clazz) {
         String simpleName = clazz.getSimpleName();
         int indexOfBracket = simpleName.indexOf('[');
