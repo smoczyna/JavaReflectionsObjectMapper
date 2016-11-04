@@ -38,8 +38,6 @@ public class ObjectDumper {
         return dump(o, 0, 0, null);
     }
     
-    //public static String dump(Object o, )
-    
     public static String dump(Object o, int maxDepth, int maxArrayElements, String[] ignoreList) {
         DumpContext ctx = ObjectDumper.getInstance().new DumpContext();
         ctx.maxDepth = maxDepth;

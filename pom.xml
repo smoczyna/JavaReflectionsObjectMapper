@@ -12,6 +12,18 @@
             <version>1.8.3</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>eu.squadd.testing.podam</groupId>
+            <artifactId>ObjectPopulator</artifactId>
+            <version>1.01.0-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
