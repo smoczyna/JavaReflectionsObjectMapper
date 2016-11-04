@@ -67,8 +67,10 @@ public class RandomValuePopulator {
     public Object populateAllFields(final Class targetClass) throws IllegalAccessException, InstantiationException {        
         final Object target;
         try {
-            if (isMathNumberType(targetClass)) // this test doesn't work
+            if (isMathNumberType(targetClass)) {
+                System.out.println("Math Number found !!!");
                 target = ConstructorUtils.invokeConstructor(targetClass, 0L);
+            }    
             else
                 target = ConstructorUtils.invokeConstructor(targetClass, null);
         } catch (Exception ex) {
