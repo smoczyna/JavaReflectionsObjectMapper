@@ -8,8 +8,11 @@ package eu.squadd.reflections.mapper;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +20,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.beanutils.ConstructorUtils;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
@@ -29,9 +35,28 @@ public class RandomValuePopulator {
     private final PodamFactory podamFactory = new PodamFactoryImpl();
 
     private <P> P getManufacturedPojo(final Class<P> klass) {
-        return podamFactory.manufacturePojo(klass);
+        if (klass.getEnclosingClass()!=null && klass.getEnclosingClass().equals(Number.class)) {
+            
+            try {
+                return klass.newInstance();
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(RandomValuePopulator.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+        } else 
+            return podamFactory.manufacturePojo(klass);
     }
 
+    private <P> P instanciateMathNumber(final Class<P> klass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        return (P) ConstructorUtils.invokeConstructor(klass, 0);
+//        try {
+//            
+//        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
+//            Logger.getLogger(RandomValuePopulator.class.getName()).log(Level.SEVERE, null, ex);
+//            throw ex;
+//        }
+    }
+    
     private Set<Field> getAllFields(Class targetClass, Predicate<Field> alwaysTrue) {
         Field[] fields = targetClass.getDeclaredFields();
         Set<Field> result = new HashSet();
@@ -39,8 +64,17 @@ public class RandomValuePopulator {
         return result;
     }
     
-    public Object populateAllFields(final Class targetClass) throws IllegalAccessException, InstantiationException {
-        final Object target = targetClass.newInstance();
+    public Object populateAllFields(final Class targetClass) throws IllegalAccessException, InstantiationException {        
+        final Object target;
+        try {
+            if (isMathNumberType(targetClass)) // this test doesn't work
+                target = ConstructorUtils.invokeConstructor(targetClass, 0L);
+            else
+                target = ConstructorUtils.invokeConstructor(targetClass, null);
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
 
         //Get all fields present on the target class
         final Set<Field> allFields = getAllFields(targetClass, Predicates.<Field>alwaysTrue());
@@ -113,8 +147,15 @@ public class RandomValuePopulator {
                 || Double.class.isAssignableFrom(fieldType)
                 || Float.class.isAssignableFrom(fieldType)
                 || Byte.class.isAssignableFrom(fieldType);
+                //|| BigDecimal.class.isAssignableFrom(fieldType)
+                //|| BigInteger.class.isAssignableFrom(fieldType);
     }
 
+    private boolean isMathNumberType(final Class<?> fieldType) {
+        //return ((fieldType.getClass().getEnclosingClass()!=null && fieldType.getClass().getEnclosingClass().equals(Number.class)));                
+        return fieldType.getClass().equals(BigDecimal.class) || fieldType.getClass().equals(BigInteger.class);
+    }
+    
 //    public static void randomlyPopulateFields(Object object) {
 //        new RandomValueFieldPopulator().populate(object);
 //    }

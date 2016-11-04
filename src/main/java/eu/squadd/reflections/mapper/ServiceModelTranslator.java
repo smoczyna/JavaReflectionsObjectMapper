@@ -114,7 +114,7 @@ public class ServiceModelTranslator {
     public static <T> T transposeModel(Class sourceClass, Class<T> destClass, Object source) {        
         Object destInstance = null;
         try {
-            destInstance = ConstructorUtils.invokeConstructor(destClass, null);        
+            destInstance = ConstructorUtils.invokeConstructor(destClass, null);
             BeanInfo destInfo = Introspector.getBeanInfo(destClass);
             PropertyDescriptor[] destProps = destInfo.getPropertyDescriptors();
 
