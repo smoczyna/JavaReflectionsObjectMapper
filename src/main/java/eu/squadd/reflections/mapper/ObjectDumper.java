@@ -166,6 +166,8 @@ public class ObjectDumper {
                 || value.getClass() == java.lang.Double.class
                 || value.getClass() == java.lang.Boolean.class
                 || value.getClass() == java.util.Date.class
+                || value.getClass() == java.math.BigDecimal.class
+                || value.getClass() == java.math.BigInteger.class
                 || value.getClass().isEnum()) {
 
             return value.toString();
