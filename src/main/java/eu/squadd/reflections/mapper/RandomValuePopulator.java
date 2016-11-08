@@ -79,51 +79,51 @@ public class RandomValuePopulator {
 
         //Iterate through fields
         for (final Field field : allFields) {
+            try {
+                //Set fields to be accessible even when private
+                field.setAccessible(true);
 
-            //Set fields to be accessible even when private
-            field.setAccessible(true);
+                final Class<?> fieldType = field.getType();
 
-            final Class<?> fieldType = field.getType();
-            
-            if (fieldType.isEnum() && Enum.class.isAssignableFrom(fieldType)) {
-                //handle any enums here if you have any
-            
-            } else if (isMathNumberType(fieldType)) {                
-                //System.out.println("*** Math number found, populating it: "+fieldType);                
-                field.set(target, getManufacturedPojo(fieldType));
-            }            
-            
-            //Check if the field is a collection
-            else if (Collection.class.isAssignableFrom(fieldType)) {
+                if (fieldType.isEnum() && Enum.class.isAssignableFrom(fieldType)) {
+                    //handle any enums here if you have any
 
-                //Get the generic type class of the collection
-                final Class<?> genericClass = getGenericClass(field);
+                } else if (isMathNumberType(fieldType)) {                
+                    //System.out.println("*** Math number found, populating it: "+fieldType);                
+                    field.set(target, getManufacturedPojo(fieldType));
+                }            
 
-                //Check if the generic type of a list is abstract
-                if (Modifier.isAbstract(genericClass.getModifiers())) {
+                //Check if the field is a collection
+                else if (Collection.class.isAssignableFrom(fieldType)) {
 
-                    System.out.println("Abstract classes are not supported !!!");
-                    
-                    //You might want to use any class that extends
-                    //Your abstract class like 
-                    
-                    // this stuff needs real class extending abstract one to work
-                    //final List<Object> list = new ArrayList();
-                    //list.add(populateAllIn(ClassExtendingAbstract.class));
-                    //field.set(target, list);
-                    
-                } else {
-                    final List<Object> list = new ArrayList();
-                    list.add(populateAllFields(genericClass));
-                    field.set(target, list);
+                    //Get the generic type class of the collection
+                    final Class<?> genericClass = getGenericClass(field);
+
+                    //Check if the generic type of a list is abstract
+                    if (Modifier.isAbstract(genericClass.getModifiers())) {
+
+                        System.out.println("Abstract classes are not supported !!!");
+
+                        // this stuff needs real class extending abstract one to work
+                        //final List<Object> list = new ArrayList();
+                        //list.add(populateAllIn(ClassExtendingAbstract.class));
+                        //field.set(target, list);
+
+                    } else {
+                        final List<Object> list = new ArrayList();
+                        list.add(populateAllFields(genericClass));
+                        field.set(target, list);
+                    }
+
+                } else if ((isSimpleType(fieldType) || isSimplePrimitiveWrapperType(fieldType)) && !fieldType.isEnum()) {
+                    field.set(target, getManufacturedPojo(fieldType));
+                } else if (!fieldType.isEnum()) {
+                    field.set(target, populateAllFields(fieldType));
                 }
-            
-            } else if ((isSimpleType(fieldType) || isSimplePrimitiveWrapperType(fieldType)) && !fieldType.isEnum()) {
-                field.set(target, getManufacturedPojo(fieldType));
-
-            } else if (!fieldType.isEnum()) {
-                field.set(target, populateAllFields(fieldType));
-            }
+            } catch (IllegalAccessException | InstantiationException ex) {
+                System.err.println(ex.getMessage());
+                continue;
+            } 
         }
         return target;
     }
@@ -152,8 +152,6 @@ public class RandomValuePopulator {
     }
 
     private boolean isMathNumberType(final Class<?> fieldType) {
-        //return ((fieldType.getClass().getEnclosingClass()!=null && fieldType.getClass().getEnclosingClass().equals(Number.class)));                
-        //return fieldType.getClass().equals(BigDecimal.class) || fieldType.getClass().equals(BigInteger.class);
         return Number.class.isAssignableFrom(fieldType);
     }
 
