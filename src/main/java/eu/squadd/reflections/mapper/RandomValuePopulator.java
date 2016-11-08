@@ -63,7 +63,6 @@ public class RandomValuePopulator {
         final Object target;
         try {
             if (isMathNumberType(targetClass)) {
-                System.out.println("*** Math Number found !!!");
                 target = getMathNumberType(targetClass);
             }    
             else
@@ -90,8 +89,8 @@ public class RandomValuePopulator {
                 //handle any enums here if you have any
             
             } else if (isMathNumberType(fieldType)) {                
-                System.out.println("*** Math number found, populating it: "+fieldType);                
-                field.set(target, getManufacturedPojo(fieldType)); //getMathNumberType(fieldType));                
+                //System.out.println("*** Math number found, populating it: "+fieldType);                
+                field.set(target, getManufacturedPojo(fieldType));
             }            
             
             //Check if the field is a collection
