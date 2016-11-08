@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.beanutils.ConstructorUtils;
-import uk.co.jemos.podam.api.PodamFactory;
-import uk.co.jemos.podam.api.PodamFactoryImpl;
+import eu.squadd.testing.objectspopulator.api.ScannerFactoryImpl;
+import eu.squadd.testing.objectspopulator.api.ScannerFactory;
 
 /**
  *
@@ -30,7 +30,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
  */
 public class RandomValuePopulator {
 
-    private final PodamFactory podamFactory = new PodamFactoryImpl();
+    private final ScannerFactory podamFactory = new ScannerFactoryImpl();
 
     private <P> P getManufacturedPojo(final Class<P> klass) {
         return podamFactory.manufacturePojo(klass);
