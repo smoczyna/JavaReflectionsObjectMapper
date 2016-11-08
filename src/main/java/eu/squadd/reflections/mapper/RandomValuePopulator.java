@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *
  */
 package eu.squadd.reflections.mapper;
 
@@ -47,8 +45,7 @@ public class RandomValuePopulator {
             else {
                 System.out.println("*** Unknown Math type, skipping for now !!!");
                 return null;
-            }
-                
+            }                
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException ex) {
             Logger.getLogger(RandomValuePopulator.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -94,7 +91,7 @@ public class RandomValuePopulator {
             
             } else if (isMathNumberType(fieldType)) {                
                 System.out.println("*** Math number found, populating it: "+fieldType);                
-                field.set(target, getMathNumberType(fieldType));                
+                field.set(target, getManufacturedPojo(fieldType)); //getMathNumberType(fieldType));                
             }            
             
             //Check if the field is a collection
